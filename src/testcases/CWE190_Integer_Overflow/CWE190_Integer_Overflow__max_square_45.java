@@ -1,0 +1,130 @@
+/* TEMPLATE GENERATED TESTCASE FILE
+Filename: CWE190_Integer_Overflow__max_square_45.java
+Label Definition File: CWE190_Integer_Overflow.label.xml
+Template File: sources-sinks-45.tmpl.java
+*/
+/*
+ * @description
+ * CWE: 190 Integer Overflow
+ * BadSource: max Set data to the maximum value for int
+ * GoodSource: A hardcoded non-zero, non-min, non-max, even number
+ * Sinks: square
+ *    GoodSink: Ensure there will not be an overflow before performing the squaring operation
+ *    BadSink : Unchecked squaring operation, which can lead to overflow
+ * Flow Variant: 45 Data flow: data passed as a private class member variable from one function to another in the same class
+ *
+ * */
+
+package testcases.CWE190_Integer_Overflow;
+
+import testcasesupport.*;
+
+import java.sql.*;
+import javax.servlet.http.*;
+
+import java.lang.Math;
+
+public class CWE190_Integer_Overflow__max_square_45 extends AbstractTestCase
+{
+
+    private int bad_data;
+    private int goodG2B_data;
+    private int goodB2G_data;
+
+    private void bad_sink() throws Throwable
+    {
+        int data = bad_data;
+
+        /* POTENTIAL FLAW: if (data*data) > MAX_VALUE, this will overflow */
+        int result = (data * data);
+
+        IO.writeLine("result: " + result);
+
+    }
+
+    public void bad() throws Throwable
+    {
+        int data;
+
+        /* POTENTIAL FLAW: Use the maximum value for this type */
+        data = Integer.MAX_VALUE;
+
+        bad_data = data;
+        bad_sink();
+    }
+
+    public void good() throws Throwable
+    {
+        goodG2B();
+        goodB2G();
+    }
+
+    private void goodG2B_sink() throws Throwable
+    {
+        int data = goodG2B_data;
+
+        /* POTENTIAL FLAW: if (data*data) > MAX_VALUE, this will overflow */
+        int result = (data * data);
+
+        IO.writeLine("result: " + result);
+
+    }
+
+    /* goodG2B() - use goodsource and badsink */
+    private void goodG2B() throws Throwable
+    {
+        int data;
+
+        java.util.logging.Logger log_good = java.util.logging.Logger.getLogger("local-logger");
+
+        /* FIX: Use a hardcoded number that won't cause underflow, overflow,
+                divide by zero, or loss-of-precision issues */
+        data = 2;
+
+        goodG2B_data = data;
+        goodG2B_sink();
+    }
+
+    private void goodB2G_sink() throws Throwable
+    {
+        int data = goodB2G_data;
+
+        int result = 0;
+
+        /* FIX: Add a check to prevent an overflow from occurring
+         * NOTE: Math.abs(Integer.MIN_VALUE) == Integer.MIN_VALUE so we must ensure the random value in
+         *       data is not equal to Integer.MIN_VALUE */
+        if ((Math.abs(data) != Integer.MIN_VALUE) && (Math.abs(data) <= (int)Math.sqrt(Integer.MAX_VALUE)))
+        {
+            result = (data * data);
+            IO.writeLine("result: " + result);
+        }
+        else {
+            IO.writeLine("Input value is too large to perform squaring.");
+        }
+
+    }
+
+    /* goodB2G() - use badsource and goodsink */
+    private void goodB2G() throws Throwable
+    {
+        int data;
+
+        /* POTENTIAL FLAW: Use the maximum value for this type */
+        data = Integer.MAX_VALUE;
+
+        goodB2G_data = data;
+        goodB2G_sink();
+    }
+
+    /* Below is the main(). It is only used when building this testcase on
+       its own for testing or for building a binary to use in testing binary
+       analysis tools. It is not used when compiling all the testcases as one
+       application, which is how source code analysis tools are tested. */
+    public static void main(String[] args) throws ClassNotFoundException,
+           InstantiationException, IllegalAccessException
+    {
+        mainFromParent(args);
+    }
+
+}
